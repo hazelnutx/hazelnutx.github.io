@@ -1,25 +1,30 @@
 html {
     font-family: sans-serif, monospace;
-    background-color: rgb(207, 207, 207) 
+    /* background-color: rgb(207, 207, 207) */
 }
+
 body {
     display: flex;
 }
 
+.links a {
+    background-color: red;
+    text-decoration: none;
+
+}
+
 .container-sidebar {
-    background: blue;
+    background: grey;
+    align-items: center;
     height: 100vh;
-    width: 320px;
-    align-items: center; 
     display: flex;
     flex-flow: column;
     padding-top: 50px;
 }
+
 .main {
     padding-top: 50px;
     background-color: red;
     display: flex;
-    width: 100vw;    
-    height: 100vh;
     justify-content: center;
 }
