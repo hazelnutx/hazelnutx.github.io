@@ -7,7 +7,7 @@ body {
 }
 
 .container-sidebar {
-    background: grey;
+    background: blue;
     height: 100vh;
     width: 320px;
     align-items: center; 
