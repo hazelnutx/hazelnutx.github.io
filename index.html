@@ -12,16 +12,17 @@
             crossorigin="anonymous"
         />
         <link
-            href="https://fonts.googleapis.com/css?family=Rubik:300,500,700"
+            href="https://fonts.googleapis.com/css?family=Rubik:300,500,700, 300i"
             rel="stylesheet"
         />
 
         <title>Raul Rusu</title>
         <style>
             body {
+                /*background-color: rgb(248, 248, 248);*/
                 font-family: "Rubik", sans-serif;
                 color: #121314;
-                padding: 5vh 10vw;
+                padding: 3vh 10vw;
                 font-size: calc(10px + 0.33vw);
             }
 
@@ -29,6 +30,13 @@
                 font-size: 4.5em;
                 font-weight: 500;
                 margin-bottom: 0;
+                animation: loading 5s forwards linear;
+            }
+
+            @keyframes loading {
+                100% {
+                    background-size: 100% 100%;
+                }
             }
 
             p {
@@ -59,6 +67,16 @@
             a:hover:after {
                 top: 0%;
             }
+            q {
+                font-weight: 300;
+                font-style: italic;
+                font-size: 0.7em;
+                color: transparent;
+                text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            }
+            q:hover {
+                color: #121314;
+            }
         </style>
     </head>
     <body>
@@ -71,20 +89,22 @@
             <p>I am currently learning Java</p>
 
             <p>
-                After Highschool I went for one year
-                <strong>2014-2015</strong> to Tehnical University in
-                Cluj-Napoca, Faculty of Electronics, Telecommunications and
-                Information Technology, from which I had to drop out, because of
-                personal matters.
+                I went to
+                <strong
+                    >Tehnical University in Cluj-Napoca, Faculty of Electronics,
+                    Telecommunications and Information Technology</strong
+                >
+                from 2014-2015.
             </p>
-
             <p>
-                I studied for Medical School for 2 years, I wanted to see if I
-                had a chance, but unfortunatly that did not happen, but I have
-                always had in the back out my mind programming, because to be
-                honest I always dabled around with it e.g: For my Automation
-                Certificate in Highschool, I made a website as a presentation
-                form with Dreamviewer.
+                As of now <span>18th of October 2019</span>
+                I know - Java (basics), Javascript (medium). Plan to learn:
+                Spring, React, Vue, Design pattern, Data Structure.
+            </p>
+            <p>
+                I love Medicine (as I applied to Medical School), Programming, I
+                enjoy fitness, Formula 1 and spending time with family and
+                friends.
             </p>
 
             <p>
@@ -103,6 +123,7 @@
                     >Linkedin</a
                 >
             </p>
+            <q>P.S: I kinda don't use social media.</q>
         </main>
     </body>
 </html>
