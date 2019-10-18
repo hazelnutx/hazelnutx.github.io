@@ -7,103 +7,102 @@
 
         <link
             rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-            integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-            crossorigin="anonymous"
-        />
-        <link
-            rel="stylesheet"
             href="https://use.fontawesome.com/releases/v5.11.2/css/all.css"
             integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN"
             crossorigin="anonymous"
         />
+        <link
+            href="https://fonts.googleapis.com/css?family=Rubik:300,500,700"
+            rel="stylesheet"
+        />
 
-        <link rel="stylesheet" href="style.css" />
         <title>Raul Rusu</title>
+        <style>
+            body {
+                font-family: "Rubik", sans-serif;
+                color: #121314;
+                padding: 5vh 10vw;
+                font-size: calc(10px + 0.33vw);
+            }
+
+            h1 {
+                font-size: 4.5em;
+                font-weight: 500;
+                margin-bottom: 0;
+            }
+
+            p {
+                font-size: 1.6em;
+                font-weight: 300;
+                line-height: 1.4;
+                max-width: 26em;
+            }
+
+            a {
+                text-decoration: none;
+                color: #121314;
+                position: relative;
+            }
+
+            a:after {
+                content: "";
+                position: absolute;
+                z-index: -1;
+                top: 60%;
+                left: -0.1em;
+                right: -0.1em;
+                bottom: 0;
+                transition: top 200ms cubic-bezier(0, 0.8, 0.13, 1);
+                background-color: rgba(79, 122, 192, 0.5);
+            }
+
+            a:hover:after {
+                top: 0%;
+            }
+        </style>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">🤷‍♂️</a>
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-toggle="collapse"
-                data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span class="navbar-toggler-icon"></span>
-            </button>
+        <main>
+            <h1>Hello.</h1>
+            <p style="font-size: 2.2em; font-weight:500;">
+                My name is Rusu Raul
+            </p>
 
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#"
-                            >Home <span class="sr-only">(current)</span></a
-                        >
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Link</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a
-                            class="nav-link dropdown-toggle"
-                            href="#"
-                            id="navbarDropdown"
-                            role="button"
-                            data-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false"
-                        >
-                            Dropdown
-                        </a>
-                        <div
-                            class="dropdown-menu"
-                            aria-labelledby="navbarDropdown"
-                        >
-                            <a class="dropdown-item" href="#">Action</a>
-                            <a class="dropdown-item" href="#">Another action</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#"
-                                >Something else here</a
-                            >
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a
-                            class="nav-link disabled"
-                            href="#"
-                            tabindex="-1"
-                            aria-disabled="true"
-                            >Disabled</a
-                        >
-                    </li>
-                </ul>
-            </div>
-        </nav>
+            <p>I am currently learning Java</p>
 
-        <!-- Main Container -->
-        <!-- <div class="main-cointainer container-fluid"> -->
-        <!-- About me -->
-        <!-- <div class="about-me" id="about-me">
-                <h1 id="title">I'm Raul</h1>
-                <h3>Lorem, ipsum.</h3>
-                <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Optio, aperiam!
-                </p>
-            </div> -->
+            <p>
+                After Highschool I went for one year
+                <strong>2014-2015</strong> to Tehnical University in
+                Cluj-Napoca, Faculty of Electronics, Telecommunications and
+                Information Technology, from which I had to drop out, because of
+                personal matters.
+            </p>
 
-        <!-- Work -->
-        <!-- <div class="work"></div> -->
+            <p>
+                I studied for Medical School for 2 years, I wanted to see if I
+                had a chance, but unfortunatly that did not happen, but I have
+                always had in the back out my mind programming, because to be
+                honest I always dabled around with it e.g: For my Automation
+                Certificate in Highschool, I made a website as a presentation
+                form with Dreamviewer.
+            </p>
 
-        <!-- Contact -->
-        <!-- <div class="contact-me"></div>
-        </div>
-
-        <div class="footer">
-            <p>Lorem ipsum dolor sit.</p>
-        </div> -->
+            <p>
+                All of the informations about me can be found on
+                <a href="https://www.linkedin.com/in/rusuraul/" target="_blank"
+                    >LinkedIn</a
+                >
+            </p>
+            <p>
+                You can find me on
+                <a href="https://github.com/hazelnutx" target="_blank"
+                    >Github</a
+                >
+                and
+                <a href="https://www.linkedin.com/in/rusuraul/" target="_blank"
+                    >Linkedin</a
+                >
+            </p>
+        </main>
     </body>
 </html>
