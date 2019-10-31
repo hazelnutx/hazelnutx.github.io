@@ -2,6 +2,7 @@
 
 ## But in this read me, I'm going to save all the links of what I want / need to learn (so I won't forget about them in some notepad) and clear some of my 100 tabs.
 
+### These are some of the resources I use to learn
 
 1. Algorithms: 
 * [ ] [llinois Education Algorithms](http://jeffe.cs.illinois.edu/teaching/algorithms/)
