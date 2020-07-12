@@ -31,7 +31,6 @@ theme: plainwhite
 plugins:
     - jekyll-feed
 
-
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to
@@ -55,6 +54,12 @@ plugins:
 # Theme settings
 plainwhite:
     dark_mode: true
+    sitemap: true
+    navigation:
+        - title: HTB
+        url: "/hackthebox"
+        - title: THM
+        url: "/tryhackme"
 
     name: Raul Rusu
     tagline: Jr. Security Analyst | CTF
