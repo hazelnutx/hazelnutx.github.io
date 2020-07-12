@@ -18,7 +18,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title:  rizemon's blog
+title:  hazelnut's blog
 email:  example@example.com
 description: >- # this means to ignore newlines until "baseurl:"
   Just trying out blogging
@@ -53,14 +53,14 @@ remote_theme: thelehhman/plainwhite-jekyll
 
 # Theme settings
 plainwhite:
-  name: Tan Jia Le
-  tagline: Cyber Security Enthusiast
+  name: Raul Rusu
+  tagline: Jr. Security Analyst | CTF Enthusiast
   date_format: "%b %-d, %Y"
 
   social_links:
-    github:  rizemon
-    hackthebox: 140434
-    kattis: tan-jia-le
+    github:  hazelnutx
+    hackthebox: 289090
+    tryhackme: hzlntx
 #    linkedIn: in/thelehhman # format: locale/username
   
 future: yes
