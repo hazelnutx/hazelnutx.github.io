@@ -57,9 +57,9 @@ plainwhite:
     sitemap: true
     navigation:
         - title: HTB
-        url: "/hackthebox"
+            url: "/hackthebox"
         - title: THM
-        url: "/tryhackme"
+            url: "/tryhackme"
 
     name: Raul Rusu
     tagline: Jr. Security Analyst | CTF
