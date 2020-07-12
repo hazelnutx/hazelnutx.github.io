@@ -56,13 +56,13 @@ plainwhite:
     dark_mode: true
 
     name: Raul Rusu
-    tagline: Jr. Security Analyst
+    tagline: Jr. Security Analyst | CTF
     date_format: "%b %-d, %Y"
 
     social_links:
         github: hazelnutx
         hackthebox: 289090
-        tryhackme: hzlntx
+        tryhackme: hzlnt
 #    linkedIn: in/thelehhman # format: locale/username
 
 future: yes
